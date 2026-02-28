@@ -2,13 +2,14 @@ torch>=1.0.1
 torchvision
 torchsummary
 pretrainedmodels
-numpy
+numpy<2
 opencv-python-headless
 joblib
-albumentations>=1.0.0
+albumentations>=1.0.0,<2
 scikit-image==0.18.1
 tqdm
 glog
 tensorboardx
 fire
+flask
 # this file is not ready yet

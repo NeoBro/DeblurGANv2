@@ -13,7 +13,11 @@ import tqdm
 from util.metrics import PSNR
 from albumentations import Compose, CenterCrop, PadIfNeeded
 from PIL import Image
-from ssim.ssimlib import SSIM
+try:
+	from ssim.ssimlib import SSIM
+except ImportError:
+	SSIM = None
+	from skimage.metrics import structural_similarity
 from models.networks import get_generator
 
 
@@ -64,7 +68,15 @@ def test_image(model, image_path):
 	psnr = PSNR(result_image, gt_image)
 	pilFake = Image.fromarray(result_image)
 	pilReal = Image.fromarray(gt_image)
-	ssim = SSIM(pilFake).cw_ssim_value(pilReal)
+	if SSIM is not None:
+		ssim = SSIM(pilFake).cw_ssim_value(pilReal)
+	else:
+		ssim = structural_similarity(
+			np.asarray(pilFake),
+			np.asarray(pilReal),
+			channel_axis=2,
+			data_range=255,
+		)
 	return psnr, ssim
 
 

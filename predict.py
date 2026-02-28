@@ -14,12 +14,13 @@ from models.networks import get_generator
 
 
 class Predictor:
-    def __init__(self, weights_path: str, model_name: str = ''):
+    def __init__(self, weights_path: str, model_name: str = '', device: Optional[str] = None):
         with open('config/config.yaml',encoding='utf-8') as cfg:
             config = yaml.load(cfg, Loader=yaml.FullLoader)
         model = get_generator(model_name or config['model'])
-        model.load_state_dict(torch.load(weights_path)['model'])
-        self.model = model.cuda()
+        self.device = torch.device(device or ('cuda' if torch.cuda.is_available() else 'cpu'))
+        model.load_state_dict(torch.load(weights_path, map_location=self.device)['model'])
+        self.model = model.to(self.device)
         self.model.train(True)
         # GAN inference should be in train mode to use actual stats in norm layers,
         # it's not a bug
@@ -62,9 +63,9 @@ class Predictor:
     def __call__(self, img: np.ndarray, mask: Optional[np.ndarray], ignore_mask=True) -> np.ndarray:
         (img, mask), h, w = self._preprocess(img, mask)
         with torch.no_grad():
-            inputs = [img.cuda()]
+            inputs = [img.to(self.device)]
             if not ignore_mask:
-                inputs += [mask]
+                inputs += [mask.to(self.device)]
             pred = self.model(*inputs)
         return self._postprocess(pred)[:h, :w, :]
 
