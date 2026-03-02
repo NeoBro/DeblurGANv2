@@ -27,10 +27,60 @@
           <span class="drop-title">Choose Image</span>
           <span class="drop-sub">PNG, JPG, WEBP</span>
         </label>
+        <p id="upload-indicator" class="upload-indicator" aria-live="polite">No image uploaded</p>
 
         <label class="field">
           <span>Weights Path</span>
           <input id="weights-path" name="weights_path" type="text" value="fpn_inception.h5" />
+          <small class="field-help">Must point to a local DeblurGANv2 `.h5` checkpoint.</small>
+        </label>
+
+        <fieldset class="field options-group">
+          <legend>Processing Steps</legend>
+          <label class="check-row">
+            <input id="opt-deblur" name="opt_deblur" type="checkbox" checked />
+            <span>Run DeblurGAN</span>
+          </label>
+          <label class="check-row">
+            <input id="opt-upscale" name="opt_upscale" type="checkbox" />
+            <span>Upscale Output</span>
+          </label>
+          <label class="check-row">
+            <input id="opt-upscale-ai" name="opt_upscale_ai" type="checkbox" />
+            <span>Use AI Upscale (Real-ESRGAN)</span>
+          </label>
+          <label class="check-row">
+            <input id="opt-cpu-fallback" name="opt_cpu_fallback" type="checkbox" />
+            <span>Allow CPU fallback if GPU runs out of memory</span>
+          </label>
+          <label class="check-row">
+            <input id="opt-detail-view" name="opt_detail_view" type="checkbox" checked />
+            <span>Show Auto Focus Detail View</span>
+          </label>
+        </fieldset>
+
+        <label class="field">
+          <span>Upscale Output</span>
+          <select id="upscale-scale" name="upscale_scale">
+            <option value="1" selected>Off (1x)</option>
+            <option value="2">2x</option>
+            <option value="4">4x</option>
+          </select>
+        </label>
+
+        <label class="field">
+          <span>Upscale Mode</span>
+          <select id="upscale-mode" name="upscale_mode">
+            <option value="lanczos" selected>Quality (Lanczos)</option>
+            <option value="ai">AI (Real-ESRGAN, needs .pth)</option>
+          </select>
+          <small class="field-help">If AI is unavailable, app will fall back to Lanczos.</small>
+        </label>
+
+        <label class="field">
+          <span>AI Model Path (Optional)</span>
+          <input id="upscale-model-path" name="upscale_model_path" type="text" placeholder="/path/to/RealESRGAN_x4plus.pth" />
+          <small class="field-help">Used only when Upscale Mode is AI.</small>
         </label>
 
         <button id="run-btn" type="submit">Deblur Image</button>
@@ -44,9 +94,25 @@
         <div class="before-wrap" id="before-wrap">
           <img id="img-before" alt="Original input" />
         </div>
+        <div id="focus-box" class="focus-box" hidden></div>
         <input id="slider" class="slider" type="range" min="0" max="100" value="50" />
       </div>
       <a id="download-link" class="download" download="deblurred.png">Download Output</a>
+    </section>
+
+    <section class="panel detail" id="detail-panel" hidden>
+      <h2>Auto Focus Detail</h2>
+      <p id="detail-meta" class="detail-meta"></p>
+      <div class="detail-grid">
+        <figure>
+          <canvas id="zoom-before" width="256" height="256" aria-label="Zoomed original detail"></canvas>
+          <figcaption>Before</figcaption>
+        </figure>
+        <figure>
+          <canvas id="zoom-after" width="256" height="256" aria-label="Zoomed deblurred detail"></canvas>
+          <figcaption>After</figcaption>
+        </figure>
+      </div>
     </section>
   </main>
 

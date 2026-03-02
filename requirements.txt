@@ -12,4 +12,8 @@ glog
 tensorboardx
 fire
 flask
+# Optional but recommended for AI upscaling mode in webapp.py
+opencv-python<4.12
+realesrgan>=0.3.0
+basicsr>=1.4.2
 # this file is not ready yet
